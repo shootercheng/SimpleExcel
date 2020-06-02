@@ -21,7 +21,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-@Slf4j
+import static com.example.ExcelXmlConstant.DIMENSION;
+import static com.example.ExcelXmlConstant.DIMENSION_REF;
+import static com.example.ExcelXmlConstant.ROW_TAG;
+
+//@Slf4j
 @Setter
 @Getter
 public class Excel07SaxReader extends AbstractExcelSaxReader<Excel07SaxReader> implements ContentHandler {
@@ -113,6 +117,14 @@ public class Excel07SaxReader extends AbstractExcelSaxReader<Excel07SaxReader> i
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
 //        log.info("startElement:{}", qName);
 
+        // row
+        if (DIMENSION.equals(qName)) {
+            String d = atts.getValue(DIMENSION_REF);
+            String totalStr = d.substring(d.indexOf(":") + 1, d.length());
+            String c = totalStr.toUpperCase().replaceAll("[A-Z]", "");
+            curRow = Integer.parseInt(c);
+        }
+
         if (C_CONTENT.equals(qName)) {
 
             String tempCurCoordinate = atts.getValue("r");//坐标
@@ -124,7 +136,7 @@ public class Excel07SaxReader extends AbstractExcelSaxReader<Excel07SaxReader> i
 
             }
             curCoordinate = tempCurCoordinate;
-            if (curCol > 0 && curRow > 0 && !refNames.contains(v_CONTENT)) {
+            if (curCol != null && curCol > 0 && curRow != null && curRow > 0 && !refNames.contains(v_CONTENT)) {
                 rowList.add(curCol, "");
                 curCol++;
             }
@@ -132,6 +144,9 @@ public class Excel07SaxReader extends AbstractExcelSaxReader<Excel07SaxReader> i
 
             setNextDataType(atts);
 
+        }
+        if (ROW_TAG.equals(qName)) {
+            System.out.println(qName);
         }
         lastContent = "";
 
@@ -142,6 +157,9 @@ public class Excel07SaxReader extends AbstractExcelSaxReader<Excel07SaxReader> i
 //        log.info("endElement:{}", qName);
         final String contentStr = lastContent.trim();
 
+        if (curRow == null) {
+            return ;
+        }
         if (curRow > 0) {
             refNames.add(qName);
         }
@@ -163,7 +181,7 @@ public class Excel07SaxReader extends AbstractExcelSaxReader<Excel07SaxReader> i
                     curCol++;
                 }
             }
-            rowList.add(curCol, value);
+            rowList.add(value);
             curCol++;
         } else {
             //如果标签名称为 row，这说明已到行尾
