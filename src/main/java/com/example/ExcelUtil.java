@@ -15,7 +15,7 @@ public class ExcelUtil {
      * @param sheetIndex sheet表0,1,2
      * @param rowDataHandler 解析数据回调接口
      */
-    public static void readBySax(InputStream inputStream, int sheetIndex,RowDataHandler rowDataHandler) {
+    public static void readBySax(InputStream inputStream, int sheetIndex, RowDataHandler rowDataHandler) {
 
         BufferedInputStream bif = new BufferedInputStream(inputStream);
 

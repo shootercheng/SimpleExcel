@@ -21,8 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.example.ExcelXmlConstant.DIMENSION;
-import static com.example.ExcelXmlConstant.DIMENSION_REF;
+import static com.example.ExcelXmlConstant.POSITION;
 import static com.example.ExcelXmlConstant.ROW_TAG;
 
 //@Slf4j
@@ -118,11 +117,8 @@ public class Excel07SaxReader extends AbstractExcelSaxReader<Excel07SaxReader> i
 //        log.info("startElement:{}", qName);
 
         // row
-        if (DIMENSION.equals(qName)) {
-            String d = atts.getValue(DIMENSION_REF);
-            String totalStr = d.substring(d.indexOf(":") + 1, d.length());
-            String c = totalStr.toUpperCase().replaceAll("[A-Z]", "");
-            curRow = Integer.parseInt(c);
+        if (ROW_TAG.equals(qName)) {
+            curRow = PositionUtils.getRowByRowTagt(atts.getValue(POSITION), curRow);
         }
 
         if (C_CONTENT.equals(qName)) {
@@ -136,7 +132,7 @@ public class Excel07SaxReader extends AbstractExcelSaxReader<Excel07SaxReader> i
 
             }
             curCoordinate = tempCurCoordinate;
-            if (curCol != null && curCol > 0 && curRow != null && curRow > 0 && !refNames.contains(v_CONTENT)) {
+            if (curCol > 0 && curRow > 0 && !refNames.contains(v_CONTENT)) {
                 rowList.add(curCol, "");
                 curCol++;
             }
@@ -144,9 +140,6 @@ public class Excel07SaxReader extends AbstractExcelSaxReader<Excel07SaxReader> i
 
             setNextDataType(atts);
 
-        }
-        if (ROW_TAG.equals(qName)) {
-            System.out.println(qName);
         }
         lastContent = "";
 
@@ -157,9 +150,6 @@ public class Excel07SaxReader extends AbstractExcelSaxReader<Excel07SaxReader> i
 //        log.info("endElement:{}", qName);
         final String contentStr = lastContent.trim();
 
-        if (curRow == null) {
-            return ;
-        }
         if (curRow > 0) {
             refNames.add(qName);
         }
@@ -200,7 +190,7 @@ public class Excel07SaxReader extends AbstractExcelSaxReader<Excel07SaxReader> i
                 }
                 rowDatHandler.handle(sheetIndex,curRow,rowList);
                 rowList.clear();
-                curRow++;
+//                curRow++;
                 curCol = 0;
                 // 置空当前列坐标和前一列坐标
                 preCoordinate = null;
@@ -336,6 +326,8 @@ public class Excel07SaxReader extends AbstractExcelSaxReader<Excel07SaxReader> i
         stylesTable = xssfReader.getStylesTable();
         if (relId > -1) {
             this.sheetIndex = relId;
+            this.curRow = 0;
+            this.curCol = 0;
             sheetInputStream = xssfReader.getSheet(RID_PREFIX + (relId + 1));
             parse(sheetInputStream);
 

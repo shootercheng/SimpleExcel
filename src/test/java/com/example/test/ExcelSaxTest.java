@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * @author James
@@ -20,6 +21,23 @@ public class ExcelSaxTest {
         try (InputStream inputStream = new FileInputStream(filePath)) {
             DefineRowHandler defineRowHandler = new DefineRowHandler();
             ExcelUtil.readBySax(inputStream, 0, defineRowHandler);
+            List<List<String>> dataList = defineRowHandler.getDataList();
+            System.out.println(dataList);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testExcel2003() {
+        String filePath = "file/test2003.xls";
+        try (InputStream inputStream = new FileInputStream(filePath)) {
+            DefineRowHandler defineRowHandler = new DefineRowHandler();
+            ExcelUtil.readBySax(inputStream, 0, defineRowHandler);
+            List<List<String>> dataList = defineRowHandler.getDataList();
+            System.out.println(dataList);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
